@@ -2,7 +2,6 @@
 
 **mac-ui** is a simple package for creating an interactive division (div) based on MacOSx ui.
 
-
 Requires jQuery & jQuery ui:
 
 ```
