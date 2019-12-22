@@ -12,7 +12,7 @@ function emplace_window(win) {
 	}
 }
 
-function create_window(title, x, y, width, height, url) {
+function create_window(title="", x=0, y=0, width=0, height=0, url="") {
 	// create window wrapper
 	var window_wrapper_div = document.createElement('div');
 	window_wrapper_div.setAttribute('class', 'mac-window-wrapper');
