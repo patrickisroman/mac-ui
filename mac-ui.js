@@ -36,7 +36,6 @@ function create_window(title, x, y, width, height, url) {
 	['close-mac-button', 'minimize-mac-button', 'maximize-mac-button'].forEach(button_class => {
 		var button_div = document.createElement('div');
 		button_div.setAttribute('class', 'mac-button ' + button_class);
-		button_div.setAttribute('id', button_class);
 		bar_div.appendChild(button_div);
 	});
 
@@ -49,9 +48,9 @@ function create_window(title, x, y, width, height, url) {
 
 	window_wrapper_div.style.left = x;
 	window_wrapper_div.style.top = y;
-	window_wrapper_div.style.width = "500px";
-	window_wrapper_div.style.zIndex = window_stack.length;
+	window_wrapper_div.style.width = width;
 	window_wrapper_div.style.height = height;
+	window_wrapper_div.style.zIndex = window_stack.length;
 
 	window_stack.push(window_wrapper_div);
 	return window_wrapper_div;
@@ -114,5 +113,5 @@ $(".mac-window-wrapper").draggable({
 });
 
 $(".mac-window-wrapper").on('mousedown', function(e) {
-	emplace_window($(this)[0])
+	emplace_window($(this)[0]);
 });
