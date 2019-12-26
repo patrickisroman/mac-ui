@@ -1,84 +1,95 @@
-// stack of windows
-var window_stack = new Array();
+class MacWindow {
+	static remove_window(win) {
+		var idx = this.window_stack.indexOf(win);
+		if (idx < 0) return;
+		this.window_stack.splice(idx, 1);
+	}
 
-function emplace_window(win) {
-	if (window_stack.length == 0) return;
+	static clear_windows() {
+		this.window_stack.forEach(mac_window => {
+			this.remove_window(mac_window);
+			var parent = $(mac_window).parent().parent();
+			if (parent) parent.remove();
+		});
+	}
 
-	var idx = window_stack.indexOf(win);
-	window_stack.push(window_stack.splice(idx, 1)[0]);
+	static emplace_window(win) {
+		if (this.window_stack.length == 0) return;
 
-	for (i = idx; i < window_stack.length; i++) {
-		window_stack[i].style.zIndex = i;
+		var idx = this.window_stack.indexOf(win);
+		if (idx < 0) return;
+		this.window_stack.push(this.window_stack.splice(idx, 1)[0]);
+
+		for (var i = idx; i < this.window_stack.length; i++) {
+			this.window_stack[i].style.zIndex = i;
+		}
+	}
+
+	static create_window(title="", x=0, y=0, width=100, height=100, url="", parent_div=document.body) {
+		// create window wrapper
+		var mac_win = document.createElement('div');
+		mac_win.setAttribute('class', 'mac-window-wrapper');
+		mac_win.setAttribute('maximized', false);
+
+		// create window bar
+		var bar = document.createElement('div');
+		bar.setAttribute('class', 'mac-bar');
+		mac_win.appendChild(bar);
+
+		// create window area
+		var window_area = document.createElement('div');
+		window_area.setAttribute('class', 'mac-window');
+		mac_win.appendChild(window_area);
+
+		// create bar buttons
+		['close-mac-button', 'minimize-mac-button', 'maximize-mac-button'].forEach(button_class => {
+			var button = document.createElement('div');
+			button.setAttribute('class', 'mac-button ' + button_class);
+			bar.appendChild(button);
+		});
+
+		// create title
+		var window_title = document.createElement('div');
+		window_title.setAttribute('class', 'mac-title');
+		window_title.innerHTML = title;
+		bar.appendChild(window_title);
+
+		if (url) {
+			$(window_area).html('<object data="' + url + '" style="width:100%;height:100%"/>');
+		}
+
+		mac_win.style.left = x;
+		mac_win.style.top = y;
+		mac_win.style.width = width;
+		mac_win.style.height = height;
+		mac_win.style.zIndex = this.window_stack.length;
+
+		parent_div.appendChild(mac_win);
+		this.window_stack.push(mac_win);
+		return mac_win;
 	}
 }
 
-function create_window(title="", x=0, y=0, width=0, height=0, url="") {
-	// create window wrapper
-	var window_wrapper_div = document.createElement('div');
-	window_wrapper_div.setAttribute('class', 'mac-window-wrapper');
-	window_wrapper_div.setAttribute('maximized', false);
+MacWindow.window_stack = new Array();
 
-	// create window bar
-	var bar_div = document.createElement('div');
-	bar_div.setAttribute('class', 'mac-bar');
-	window_wrapper_div.appendChild(bar_div);
-
-	// create window div
-	var window_div = document.createElement('div');
-	window_div.setAttribute('class', 'mac-window');
-	window_wrapper_div.appendChild(window_div);
-
-	if (url) {
-		$(window_div).html('<object data="' + url + '" style="width:100%;height:100%"/>');
-	}
-
-	// create buttons
-	['close-mac-button', 'minimize-mac-button', 'maximize-mac-button'].forEach(button_class => {
-		var button_div = document.createElement('div');
-		button_div.setAttribute('class', 'mac-button ' + button_class);
-		bar_div.appendChild(button_div);
-	});
-
-	// create title
-	var title_div = document.createElement('div');
-	title_div.setAttribute('class', 'mac-title');
-	title_div.innerHTML = title;
-	bar_div.appendChild(title_div);
-	document.body.appendChild(window_wrapper_div);
-
-	window_wrapper_div.style.left = x;
-	window_wrapper_div.style.top = y;
-	window_wrapper_div.style.width = width;
-	window_wrapper_div.style.height = height;
-	window_wrapper_div.style.zIndex = window_stack.length;
-
-	window_stack.push(window_wrapper_div);
-	return window_wrapper_div;
-}
-
-// close button
 $(".close-mac-button").on('click', function() {
 	var parent_div = $(this).parent().parent();
-
 	if (parent_div) {
+		MacWindow.remove_window($(parent_div)[0]);
 		parent_div.remove();
 	}
 });
 
-// minimize button
 $(".minimize-mac-button").on('click', function() {
 	var parent_div = $(this).parent().parent();
-
-	if (parent_div) {
-		parent_div.fadeOut();
-	}
+	if (parent_div) parent_div.fadeOut();
 });
 
-// maximize button
 $(".maximize-mac-button").on("click", function() {
 	var parent_div = $(this).parent().parent();
-	var maxed = JSON.parse(parent_div.attr('maximized').toLowerCase());
+	if (!parent_div) return;
 
+	var maxed = JSON.parse(parent_div.attr('maximized').toLowerCase());
 	parent_div.attr('maximized', !maxed);
 
 	if (!maxed) {
@@ -107,11 +118,10 @@ $(".maximize-mac-button").on("click", function() {
 	}
 });
 
-// Draggable functions 
 $(".mac-window-wrapper").draggable({
 	handle : ".mac-bar"
 });
 
-$(".mac-window-wrapper").on('mousedown', function(e) {
-	emplace_window($(this)[0]);
+$(".mac-window-wrapper").on('mousedown', function() {
+	MacWindow.emplace_window($(this)[0]);
 });

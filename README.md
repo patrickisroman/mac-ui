@@ -19,10 +19,12 @@ Then, to create a new window, in your javascript, call create_window()
 ```
 // creates a 100x300 window at position (0, 0)
 
-var win = create_window('My First Window', 0, 0, 100, 300);
-```
+var win = MacWindow.create_window('My First Window', 0, 0, 100, 300);
 
-creates a 100x300 window at position(0,0)
+// creates a 500x500 window at position (100, 100) and loads google.com
+
+var win = MacWindow.create_window('Google', 100, 100, 500, 500, 'www.google.com');
+```
 
 [Example windows](https://imgur.com/KbZUcfQ.gif "Example windows"):
 ![](https://imgur.com/KbZUcfQ.gif)
